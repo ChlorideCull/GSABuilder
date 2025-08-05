@@ -1,0 +1,65 @@
+// Slightly modified.
+syntax = "proto2";
+
+package enterprise.platform;
+
+option java_package = "com.google.enterprise.admin";
+option java_outer_classname = "NetworkConfiguratorProto";
+
+message NicConfiguration {
+  enum NicSpeed {
+    AUTO = 0;
+    TEN_HD = 1;
+    TEN_FD = 2;
+    ONE_HUNDRED_HD = 3;
+    ONE_HUNDRED_FD = 4;
+    GIGABIT_AUTO = 5;
+  }
+
+  optional string device = 1 [default = "eth0"];
+  optional string ipv4_address = 2;
+  optional string ipv4_netmask = 3;
+  optional string ipv6_address = 4;
+  optional string ipv6_prefix = 5;
+  optional bool ipv6_auto_configuration = 6 [default = false];
+  optional NicSpeed speed = 7 [default = AUTO];
+  optional bool enabled = 8 [default = false];
+  optional string ipv4_gateway = 9;
+  optional string ipv6_gateway = 10;
+  optional string mac_address = 11;
+}
+
+message NetworkConfiguration {
+  optional NicConfiguration primary = 1;
+  optional NicConfiguration admin = 2;
+}
+
+message DnsConfiguration {
+  repeated string dns_suffixes = 1;
+  repeated string dns_servers = 2;
+}
+
+message TimeConfiguration {
+  optional string timezone = 1;
+  repeated string ntp_servers = 2;
+}
+
+message IptablesConfiguration {
+  optional string adminnic_device = 1 [default = "eth0"];
+  optional bool adminhttp = 2 [default = true];
+  optional bool sshd_enabled = 3 [default = false];
+  optional bool feedergatehttp = 4 [default = true];
+}
+
+message StaticRoute {
+  optional string device = 1 [default = "eth0"];
+  optional string ip_address = 2;
+  optional string netmask_or_prefix = 3;
+  optional string gateway = 4;
+  optional bool is_ipv6 = 5 [default = false];
+  optional bool is_default = 6 [default = false];
+}
+
+message StaticRoutesConfiguration {
+  repeated StaticRoute routes = 1;
+}
