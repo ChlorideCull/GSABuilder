@@ -25,6 +25,7 @@ Don't run this exposed to the internet. This product doesn't have the best secur
     - mkfs.ext3
     - mkfs.ext4
     - findmnt
+    - rpm
 1. The environment that runs the `build.py` script needs to have the traditional, non-deterministic network names (`eth0`, `eth1`, and so on)
 
 During testing, I've been booting a VM from an Arch Linux live disc, and performing the build from there.
