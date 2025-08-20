@@ -338,7 +338,7 @@ with open(os.path.join(tempdir, "etc/google/hw_manifest.py"), mode="wt") as f:
 googleconfigpath = "/export/hda3/{0}/local/conf/google_config".format(GSA_SW_VERSION_REAL)
 subprocess.run(["chroot", tempdir, "/opt/ent/customize/gsa_keygen.par", "--developer", "--install"], check=True)
 subprocess.run(["chroot", tempdir, "/opt/ent/customize/gsa_config.par", "--config", "shipping", "--platform", "dell_r710_v2", "--product", "super", "--force", "--outfile", googleconfigpath], check=True)
-subprocess.run(["chroot", tempdir, "/opt/ent/customize/gsa_license.par", "--config", "shipping", "--platform", "dell_r710_v2", "--product", "super", "--force", "--set", "ENT_LICENSE_ORIGINAL_START_DATE=1754389348000L", "--set", "ENT_LICENSE_ORIGINAL_END_DATE=3133700400000L", "--set", "ENT_LICENSE_ID=Dusty was here :3", "--infile", googleconfigpath, "--outfile", googleconfigpath], check=True)
+subprocess.run(["chroot", tempdir, "/opt/ent/customize/gsa_license.par", "--config", "shipping", "--platform", "dell_r710_v2", "--product", "super", "--force", "--set", "ENT_LICENSE_ORIGINAL_START_DATE=1754389348000L", "--set", "ENT_LICENSE_ORIGINAL_END_DATE=3133700400000L", "--set", "ENT_LICENSE_ID=Dusty was here :3", "--set", "ENT_LICENSE_MAX_PAGES_OVERALL=2147483647L", "--set", "ENT_LICENSE_MAX_PAGES_PER_COLLECTION=2147483647L", "--infile", googleconfigpath, "--outfile", googleconfigpath], check=True)
 subprocess.run(["chroot", tempdir, "ln", "-sf", "/usr/share/zoneinfo/US/Pacific", "/etc/localtime"], check=True)
 subprocess.run(["chroot", tempdir, "chsh", "-s", "/bin/bash", "nobody"], check=True)
 subprocess.run(["chroot", tempdir, "chown", "nobody", "/export/hda3/tmp"], check=True)
