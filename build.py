@@ -7,7 +7,7 @@ import argparse
 import shutil
 import json
 import ipaddress
-from time import sleep
+import time
 from proto import network_configurator_pb2 as pb
 
 parser = argparse.ArgumentParser(description="GSA Builder",
@@ -29,7 +29,10 @@ def DownloadAndUnpackBundle(bundledir):
     if (os.path.exists(os.path.join(bundledir, "manifest"))):
         print("Found already downloaded bundle")
         return
-    subprocess.run(["sh", "-c", "curl -f -s 'https://dl.google.com/dl/enterprise/install_bundle-10000967-7.6.512-18.bin' | pv -p -e -r -a -s 6335286742 --buffer-size 32M -N 'Download' -c | gpg --yes --quiet --decrypt | gpg --yes --quiet --decrypt --pinentry-mode loopback --passphrase 'Kx9zw3SN0dQuwalil53U05cBnjq7IrzW8vkWgVAz2aFrEriTg0j13yueq9Dt54xV' | pv -p -e -r -a -s 6746659172 -N 'Decryption' -c | tar xz"], check=True, cwd=bundledir)
+    dlproc = subprocess.run(["sh", "-c", "curl -f -s 'https://dl.google.com/dl/enterprise/install_bundle-10000967-7.6.512-18.bin' | pv -p -e -r -a -s 6335286742 --buffer-size 32M -N 'Download' -c | gpg --yes --quiet --decrypt | gpg --yes --quiet --decrypt --pinentry-mode loopback --passphrase 'Kx9zw3SN0dQuwalil53U05cBnjq7IrzW8vkWgVAz2aFrEriTg0j13yueq9Dt54xV' | pv -p -e -r -a -s 6746659172 -N 'Decryption' -c | tar xz"], cwd=bundledir)
+    if dlproc.returncode != 0:
+        # Probably a 404. Try again with the archived URL.
+        subprocess.run(["sh", "-c", "curl -f -s 'https://web.archive.org/web/20230806225106if_/https://dl.google.com/dl/enterprise/install_bundle-10000967-7.6.512-18.bin' | pv -p -e -r -a -s 6335286742 --buffer-size 32M -N 'Download' -c | gpg --yes --quiet --decrypt | gpg --yes --quiet --decrypt --pinentry-mode loopback --passphrase 'Kx9zw3SN0dQuwalil53U05cBnjq7IrzW8vkWgVAz2aFrEriTg0j13yueq9Dt54xV' | pv -p -e -r -a -s 6746659172 -N 'Decryption' -c | tar xz"], check=True, cwd=bundledir)
 
 def PartitionAndFormat():
     targetblocksize = int(open("/sys/block/" + target + "/queue/logical_block_size").read())
@@ -258,7 +261,7 @@ print("/!\\ GOING TO OBLITERATE /DEV/{0} /!\\".format(target.upper()))
 print("This script will irrevocably remove everything on /dev/{0}. Are you sure it's the right device?".format(target))
 subprocess.run(["lsblk", "/dev/{0}".format(target)])
 print("Continuing in 10 seconds...")
-sleep(10)
+time.sleep(10)
 
 DownloadAndUnpackBundle(rootpath)
 PartitionAndFormat()
