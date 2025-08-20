@@ -8,6 +8,8 @@ import shutil
 import json
 import ipaddress
 import time
+import pickle
+import codecs
 from proto import network_configurator_pb2 as pb
 
 parser = argparse.ArgumentParser(description="GSA Builder",
@@ -254,6 +256,22 @@ def MakeDirectoryTree(tempdir, version, release):
         '../../../../../../data/{0}/connectormgr-test'.format(version),
         os.path.join(tempdir, 'export/hda3/{0}/local/google/bin/connectormgr-test'.format(version)))
 
+def GenerateSecureConfig(tempdir):
+    subprocess.run(["chroot", tempdir, "/opt/ent/customize/gsa_keygen.par", "--secure", "--install", "--archive", "gsabuilder_keybundle.pickle", "--platform", "dell_r710_v2", "--product", "super"], check=True)
+    with open(os.path.join(tempdir, "gsabuilder_keybundle.pickle"), mode="rb") as f:
+        generated = pickle.load(f, encoding="bytes")
+    
+    return {
+        "nobody_id_rsa": codecs.decode(generated[b'ssh_nobody_id_rsa'], encoding="ascii"),
+        "nobody_id_rsa_pub": codecs.decode(generated[b'ssh_nobody_id_rsa_pub'], encoding="ascii"),
+        "gsa_support_idrac": codecs.decode(generated[b'gsa_support_idrac'], encoding="ascii"),
+        "bios_passwd": codecs.decode(generated[b'bios_passwd'], encoding="ascii"),
+        "sshconsole_passwd": codecs.decode(generated[b'sshconsole_passwd'], encoding="ascii"),
+        "root_id_rsa": codecs.decode(generated[b'ssh_root_id_rsa'], encoding="ascii"),
+        "root_id_rsa_pub": codecs.decode(generated[b'ssh_root_id_rsa_pub'], encoding="ascii"),
+        "root_passwd": codecs.decode(generated[b'root_passwd'], encoding="ascii")
+    }
+
 if not args.generalize:
     print("/!\\ Building an image that will only work on official hardware!")
 
@@ -336,7 +354,7 @@ with open(os.path.join(tempdir, "etc/google/hw_manifest.py"), mode="wt") as f:
         "MD_CONFIG = []\n"
     ])
 googleconfigpath = "/export/hda3/{0}/local/conf/google_config".format(GSA_SW_VERSION_REAL)
-subprocess.run(["chroot", tempdir, "/opt/ent/customize/gsa_keygen.par", "--developer", "--install"], check=True)
+securecreds = GenerateSecureConfig(tempdir)
 subprocess.run(["chroot", tempdir, "/opt/ent/customize/gsa_config.par", "--config", "shipping", "--platform", "dell_r710_v2", "--product", "super", "--force", "--outfile", googleconfigpath], check=True)
 subprocess.run(["chroot", tempdir, "/opt/ent/customize/gsa_license.par", "--config", "shipping", "--platform", "dell_r710_v2", "--product", "super", "--force", "--set", "ENT_LICENSE_ORIGINAL_START_DATE=1754389348000L", "--set", "ENT_LICENSE_ORIGINAL_END_DATE=3133700400000L", "--set", "ENT_LICENSE_ID=Dusty was here :3", "--set", "ENT_LICENSE_MAX_PAGES_OVERALL=2147483647L", "--set", "ENT_LICENSE_MAX_PAGES_PER_COLLECTION=2147483647L", "--infile", googleconfigpath, "--outfile", googleconfigpath], check=True)
 subprocess.run(["chroot", tempdir, "ln", "-sf", "/usr/share/zoneinfo/US/Pacific", "/etc/localtime"], check=True)
@@ -400,15 +418,9 @@ GenerateNetworkConfig(tempdir, args.eth1_mac)
 print("Unmounting")
 subprocess.run(["umount", "-R", tempdir])
 os.rmdir(tempdir)
+with open("credentials.json", mode="wt") as f:
+    json.dump(securecreds, f, indent=4)
 print("Done!")
+print("Your unique credentials have been placed in 'credentials.json', and the raw format has been left on the root of the GSA.")
 print("Please note that it may take up to 20 minutes for the system to be ready after first boot.")
 print("Once done, you can connect a device to eth1, and connect to http://192.168.255.1:1111 to start the Network and System Settings wizard.")
-
-# /bin/mkinitrd /boot/initramfs-3.14.44_gsa-x64_1.9.img 3.14.44_gsa-x64_1.9
-# /usr/sbin/grub_cfg.par -c new --kernels vmlinux-3.14.44_gsa-x64_1.9 --appends initrd=/boot/initramfs-3.14.44_gsa-x64_1.9.img --gsa_sw_ver GSA_SW_VERSION --mbid MBID -o /boot/grub/grub.cfg
-# /usr/sbin/grub-install target
-# /opt/ent/customize/gsa_keygen.par -r -i -P dell_r710_v2 --product super
-# # TODO: Secure key generation is broken af, use devel_release keys for now, which sets passwords to "test" and lets a bunch of google people SSH into your machine
-# # /opt/ent/customize/gsa_keygen.par -s -a keybundle.bin -P dell_r710_v2 --product super
-# /opt/ent/customize/gsa_config.par --config shipping --platform dell_r710_v2 --product super -o "/export/hda3/" + GSA_SW_VERSION_REAL + "/local/conf/google_config"
-# # TODO: Stub out the "DO NOT SHIP" taint? see gsa_firstboot

@@ -36,7 +36,7 @@ During testing, I've been booting a VM from an Arch Linux live disc, and perform
 On account of this being intended for appliances, and there being no official way to perform an installation from scratch, there are some differences compared to what you would find on an appliance:
 
 1. There is a pre-activated license valid until 2069-04-20 4:20:00 PM GMT. With an appliance, you'd get a license valid for your appliance for as long as you had an active support contract, and they've all expired now.
-2. **This uses an insecure configuration.** On the appliances, all credentials and keys would be randomly generated and stored on a server. This uses development credentials and keys they helpfully shipped. If you are asked for a password, it's usually `test`. **This includes hidden accounts.**
+2. While this generates secure, unique credentials like a real appliance would have, GRUB isn't locked down, and the BIOS password is not set. (Hopefully. No guarantees.)
 3. Appliances would come with a RAID setup from the factory, and generally have a different configuration depending on the model. This pretends to be a weird Dell R710 with no disks and no RAID, as far as the management software is concerned :)
 4. When run with `--generalize` the kernel is replaced with a slightly newer one from Rocky Linux 8, as the stock kernel is hyperspecialized to the point of only supporting the PERC controllers in the Dell servers it was intended for. Yes, it doesn't even support AHCI.
 5. The appliances have an A/B partitioning setup, similar to Android devices. This doesn't, because it's highly unlikely Google is going to release an update at this point.
