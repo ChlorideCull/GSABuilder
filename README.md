@@ -50,3 +50,6 @@ On account of this being intended for appliances, and there being no official wa
 
 ## Further reading
 This is generally compatible with [the official Installation guide.](https://web.archive.org/web/20130728154604/http://www.google.com/support/enterprise/static/gsa/docs/admin/70/gsa_doc_set/installation/installation.html)
+
+When configuring, if you don't know what to enter for NTP servers, enter `0.pool.ntp.org,1.pool.ntp.org,2.pool.ntp.org,3.pool.ntp.org`.
+You can press "Help" to read what each option means in the configuration.
