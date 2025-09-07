@@ -48,6 +48,11 @@ On account of this being intended for appliances, and there being no official wa
 - The unused, non-working initramfs generated for the build host kernel is never removed.
 - The inability to make a secure image is... pretty bad. In development mode, it gets configured to be extremely insecure, and even if you *think* you've got all the wide open accounts, there's a myriad of hidden ones.
 
+## Thanks
+- Wang at DEVCORE [who wrote the blog post that helped me track down the firmware image](https://devco.re/blog/2023/07/07/a-journey-into-hacking-google-search-appliance-en/)
+- [Cursed Silicon](https://www.youtube.com/@CursedSilicon) whose two messages, now at the bottom of the command help output, planted the idea of doing this in my head
+- "GG-ServerParts" in southern Sweden who advertised a T3 model for a reasonable price several years ago, which ended up being my first server
+
 ## Further reading
 This is generally compatible with [the official Installation guide.](https://web.archive.org/web/20130728154604/http://www.google.com/support/enterprise/static/gsa/docs/admin/70/gsa_doc_set/installation/installation.html)
 
